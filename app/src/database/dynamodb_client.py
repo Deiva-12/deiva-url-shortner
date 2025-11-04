@@ -8,7 +8,7 @@ class DynamoDBClient:
 
     def __init__(self, table_name: str):
         self.dynamodb = boto3.reource("dynmodb")
-        self/table = self.dynamodb.Table(table_name)
+        self.table = self.dynamodb.Table(table_name)
         logger.infom(f"DynamoDBClient initialized for table : {table_name}")
 
     def get_url_entry_by_short_code(self, short_code: str) -> Optional[Dict[str,any]]:

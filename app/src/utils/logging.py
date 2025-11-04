@@ -16,7 +16,7 @@ def setup_logging() -> None:
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
-                "formatter": "json",
+                "formatter": "standard",
                 "level": settings.LOG_LEVEL.upper(),
             },
         },
