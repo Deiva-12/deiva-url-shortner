@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 class DynamoDBClient:
 
     def __init__(self, table_name: str):
-        self.dynamodb = boto3.reource("dynmodb")
+        self.dynamodb = boto3.resource("dynamodb") 
         self.table = self.dynamodb.Table(table_name)
         logger.infom(f"DynamoDBClient initialized for table : {table_name}")
 

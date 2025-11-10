@@ -1,9 +1,11 @@
+from src.utils.app_logging import setup_logging
 from fastapi import FastAPI
-from src.controllers import url_controller 
-from src.utils.logging import setup_logging
+from src.controllers.url_controller import router 
+import logging
+
 
 setup_logging()
 
 app = FastAPI(title="TinyURL Service")
 
-app.include_router(url_controller.router)
+app.include_router(router)

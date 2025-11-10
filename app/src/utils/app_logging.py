@@ -9,14 +9,14 @@ def setup_logging() -> None:
         "disable_existing_loggers": False,
         "formatters": {
             "json": {
-                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "()":"pythonjsonlogger.jsonlogger.JsonFormatter",
                 "format": "%(asctime)s %(levelname)s %(name)s %(message)s",
             },
         },
         "handlers": {
             "console": {
                 "class": "logging.StreamHandler",
-                "formatter": "standard",
+                "formatter": "json",
                 "level": settings.LOG_LEVEL.upper(),
             },
         },
