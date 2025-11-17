@@ -3,6 +3,7 @@ from src.models import url_models
 from src.services.url_service import Urlservice
 from src.database.dynamodb_client import DynamoDBClient
 from src.utils.settings import settings
+from fastapi.responses import RedirectResponse
 import logging
 
 
@@ -14,7 +15,7 @@ def get_dynamodb_client() -> DynamoDBClient:
       return DynamoDBClient(settings.DYNAMODB_TABLE_NAME)
       
 
-def get_url_instance(dynamodb_client: DynamoDBClient = Depends(get_dynamodb_client)) -> Urlservice:
+def get_urlservice(dynamodb_client: DynamoDBClient = Depends(get_dynamodb_client)) -> Urlservice:
         return Urlservice(dynamodb_client)
 
 @router.get("/",status_code=status.HTTP_200_OK)
@@ -36,7 +37,7 @@ def health_check():
 #         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/create", response_model=url_models.CreateUrlResponse)
-def create_tiny_url(request: Request,payload: url_models.CreateUrlRequest, urlservice: Urlservice = Depends(get_url_instance)):
+def create_tiny_url(request: Request,payload: url_models.CreateUrlRequest, urlservice: Urlservice = Depends(get_urlservice)):
     
     logger.info(f"Received request to shorten URL: {payload.original_url}")
 
@@ -55,6 +56,35 @@ def create_tiny_url(request: Request,payload: url_models.CreateUrlRequest, urlse
 
 
 
+@router.get("/{short_code}") #short code is placeholder for real short code "/https://double_digit_solutions.com/23498"
+def get_short_code(request:Request,short_code:str,service_url: Urlservice = Depends(get_urlservice)):
+
+   logger.info(f"Redirect requested for short code: {short_code}")
+    
+   original_url = service_url.get_original_url(short_code)
+   
+   if not original_url:
+      logger.warning(f"Short code not found: {short_code}")
+      raise HTTPException(status_code = 307, detail="URL not Found")
+   return RedirectResponse(url= original_url)
+   
+@router.get("/fetch/{short_code}")
+def fetch_url(short_code: str, service: Urlservice = Depends(get_urlservice)):
+   logger.info(f"Fetching original URL for short code: {short_code}")
+   url_entry = service.get_original_url(short_code)
+
+   if not url_entry:
+      raise HTTPException(status_code = 404, detail = "URL not found")
+   return {"original_url": url_entry}
+
+@router.delete("/delete/{short_code}")
+def delete_short_code(request: Request,short_code:str, url_service: Urlservice = Depends(get_urlservice)):
+#      short_code = short_code.strip("{}")
+     status = url_service.delete_short_url(short_code) # we are calling delete_short_url function from url_service by passing short_code as input
+     if not status:
+          logger.error("failed to delete short url")
+          raise HTTPException(status_code = 404,detail="URL not found")
+     return {"message":"URL deleted successfully"}
 
 
 

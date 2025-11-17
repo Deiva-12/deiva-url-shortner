@@ -18,8 +18,10 @@ class Urlservice:
             s = pyshorteners.Shortener()
 
             short_url = s.tinyurl.short(original_url)
+            logger.info(f"Short URL created : {short_url}")
 
             short_code = short_url.split('/')[-1]
+            logger.info(f"Short code created : {short_code}")
         
         except Exception as e:
             logger.error(f"Failed to generate short URL using pyshorteners: {e}", exc_info=True)
@@ -53,3 +55,4 @@ class Urlservice:
             logger.warning(f"Delete failed: short code '{short_code}' not found.")
             return False
         return self.db_client.delete_url_entry(short_code)
+    

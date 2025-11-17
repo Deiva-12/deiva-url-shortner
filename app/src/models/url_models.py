@@ -1,7 +1,7 @@
 from pydantic import BaseModel, HttpUrl
 
 class CreateUrlRequest(BaseModel):
-    original_url: HttpUrl # Pydantic validates this is a valid URL
+    original_url: str # Pydantic validates this is a valid URL
     phone_number: str
 
 class CreateUrlResponse(BaseModel):
