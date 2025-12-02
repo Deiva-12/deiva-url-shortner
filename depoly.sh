@@ -35,5 +35,5 @@ LOGFILE="start_logs/uvicorn_$TIMESTAMP.log"
 
 mkdir -p start_logs
 
-nohup uvicorn src.main:app --reload > "$LOGFILE" 2>&1 &
+nohup uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload > "$LOGFILE" 2>&1 &
 echo "Uvicorn started in background. Logs: $LOGFILE"
