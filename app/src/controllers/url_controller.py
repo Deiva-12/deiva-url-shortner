@@ -46,8 +46,8 @@ def create_tiny_url(request: Request,payload: url_models.CreateUrlRequest, urlse
         #   return "falied to create short_url" #need to raise http exception with status code 500
         raise HTTPException(status_code=500, detail="Failed to create short URL") 
 
-    base_url = str(request.base_url)
-    short_url = f"{base_url}{short_code}"
+    base_url = str(request.base_url) 
+    short_url = f"{base_url}{short_code}"     #"http://dd-solutions.com/87dgDGq"
 
     logger.info(f"Created new mapping: {short_url} for phone: {payload.phone_number}")   
      

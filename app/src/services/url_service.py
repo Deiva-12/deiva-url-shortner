@@ -20,7 +20,7 @@ class Urlservice:
             short_url = s.tinyurl.short(original_url)
             logger.info(f"Short URL created : {short_url}")
 
-            short_code = short_url.split('/')[-1]
+            short_code = short_url.split('/')[-1] # http://tinyUrl-domain.com/87dgDGq"  "http://dd-solutions.com/87dgDGq"
             logger.info(f"Short code created : {short_code}")
         
         except Exception as e:

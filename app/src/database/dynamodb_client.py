@@ -24,7 +24,9 @@ class DynamoDBClient:
 
     def create_url_entry(self, item: Dict[str, Any]) -> bool:
         try : 
+            logger.info(f"Attempting to insert item into DynamoDB: {item}")
             self.table.put_item(Item=item)
+            logger.info("Successfully inserted item into DynamoDB")
             return True 
         except Exception as e:
             logger.error(f"Error putting item to DynamoDB : {e}",exc_info=True)
