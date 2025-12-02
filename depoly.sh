@@ -22,6 +22,7 @@ ls
 
 #installing requirements and changing directory
 cd app
+python3 -m venv venv
 source venv/bin/activate
 echo "Installing dependencies..."
 pip install -r requirements.txt
