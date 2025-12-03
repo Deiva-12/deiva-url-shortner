@@ -30,7 +30,7 @@ echo "Done!"
 
 #running uvicorn server 
 
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
 LOGFILE="start_logs/uvicorn_$TIMESTAMP.log"
 
 mkdir -p start_logs
