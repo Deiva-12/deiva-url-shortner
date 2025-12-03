@@ -1,80 +1,57 @@
 #!/bin/bash
 
-# ============================
-# CONFIG
-# ============================
-REPO_DIR="/home/diva/deiva-url-shortner"
-APP_DIR="$REPO_DIR/app"
+# Directory where your repo lives
+REPO_DIR="/home/diva/deiva-url-shortner" 
+
+# Move into the repo directory
+cd "$REPO_DIR" || { echo "Repo directory not found"; exit 1; }
+
+# Fetch and pull latest changes
+echo "Pulling latest changes..."
+git pull origin develop   # change 'main' to 'master' or another branch if needed
+
+echo "Done!"
+
+# printing present working directory
+
+pwd
+
+#listing 
+
+ls
+
+#installing requirements and changing directory
+cd app
+python3 -m venv venv
+source venv/bin/activate
+echo "Installing dependencies..."
+pip install -r requirements.txt
+echo "Done!"
+
+#running uvicorn server 
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
+kdir -p start_logs
 
-# Log directories
-LOG_DIR="$REPO_DIR/logs"
-STARTUP_LOG="$LOG_DIR/startup/uvicorn_start_$TIMESTAMP.log"
-ACCESS_LOG="$LOG_DIR/access/uvicorn_access_$TIMESTAMP.log"
-ERROR_LOG="$LOG_DIR/error/uvicorn_error_$TIMESTAMP.log"
+# Server startup logs
+SERVER_LOG="start_logs/uvicorn_server_${TIMESTAMP}.log"
 
-mkdir -p "$LOG_DIR/startup" "$LOG_DIR/error" "$LOG_DIR/access"
+# Endpoint logs (each API request)
+ENDPOINT_LOG="start_logs/endpoints_${TIMESTAMP}.log"
 
+echo "Starting Uvicorn with separate logs..."
 
-# ============================
-# STEP 1 — PULL LATEST CODE
-# ============================
-echo "➡ Pulling latest changes..."
-cd "$REPO_DIR" || { echo "❌ Repo not found"; exit 1; }
-git pull origin develop
-echo "✔ Git updated"
-
-
-# ============================
-# STEP 2 — VENV + REQUIREMENTS
-# ============================
-echo "➡ Preparing Python environment..."
-cd "$APP_DIR"
-
-if [ ! -d "venv" ]; then
-    python3 -m venv venv
-fi
-
-source venv/bin/activate
-
-echo "➡ Installing dependencies..."
-pip install -r requirements.txt
-echo "✔ Dependencies installed"
-
-
-# ============================
-# STEP 3 — STOP PREVIOUS UVICORN
-# ============================
-if pgrep -f "uvicorn" > /dev/null; then
-    echo "➡ Stopping previous Uvicorn instance..."
-    pkill -f "uvicorn"
-fi
-
-
-# ============================
-# STEP 4 — START UVICORN (CORRECT LOGGING)
-# ============================
-echo "➡ Starting Uvicorn server..."
-
-# IMPORTANT FIX:
-# Uvicorn sends ALL logs to STDERR by default.
-# We force access logs to STDOUT using --log-level and filtering.
-
+# Start server logs
 nohup uvicorn src.main:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \
-    --access-log \
-    --log-level info \
-    1> "$STARTUP_LOG" \
-    2> "$ERROR_LOG" &
+    --no-access-log > "$SERVER_LOG" 2>&1 &
 
-# Extract access logs from startup stdout (they always start with "INFO:     ")
-grep --line-buffered "INFO:     " "$STARTUP_LOG" > "$ACCESS_LOG" &
-
-echo "✔ Uvicorn started successfully"
-echo "📌 Startup log → $STARTUP_LOG"
-echo "📌 Access log  → $ACCESS_LOG"
-echo "📌 Error log   → $ERROR_LOG"
-echo "✅ Deployment complete"
+# Start a second Uvicorn process ONLY for access logs (works reliably)
+nohup uvicorn src.main:app \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --reload \
+    --access-log > "$ENDPOINT_LOG" 2>&1 &
+echo "Uvicorn started in background. Logs: $LOGFILE"
