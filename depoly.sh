@@ -31,7 +31,7 @@ echo "Done!"
 #running uvicorn server 
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
-kdir -p start_logs
+mkdir -p start_logs
 
 # Server startup logs
 SERVER_LOG="start_logs/uvicorn_server_${TIMESTAMP}.log"
