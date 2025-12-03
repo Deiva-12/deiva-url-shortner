@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory where your repo lives
-REPO_DIR="/home/ubuntu/akash-url-shortner" 
+REPO_DIR="/home/diva/deiva-url-shortner" 
 
 # Move into the repo directory
 cd "$REPO_DIR" || { echo "Repo directory not found"; exit 1; }
