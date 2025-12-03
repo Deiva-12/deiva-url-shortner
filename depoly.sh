@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Directory where your repo lives
-REPO_DIR="/home/diva/deiva-url-shortner" 
+REPO_DIR="/home/ubuntu/akash-url-shortner" 
 
 # Move into the repo directory
 cd "$REPO_DIR" || { echo "Repo directory not found"; exit 1; }
@@ -30,28 +30,11 @@ echo "Done!"
 
 #running uvicorn server 
 
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
+TIMESTAMP=$(TZ='Asia/Kolkata' date +"%Y-%m-%d_%H-%M")
+LOGFILE="start_logs/uvicorn_$TIMESTAMP.log"
+
 mkdir -p start_logs
 
-# Server startup logs
-SERVER_LOG="start_logs/uvicorn_server_${TIMESTAMP}.log"
-
-# Endpoint logs (each API request)
-ENDPOINT_LOG="start_logs/endpoints_${TIMESTAMP}.log"
-
-echo "Starting Uvicorn with separate logs..."
-
-# Start server logs
-nohup uvicorn src.main:app \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --reload \
-    --no-access-log > "$SERVER_LOG" 2>&1 &
-
-# Start a second Uvicorn process ONLY for access logs (works reliably)
-nohup uvicorn src.main:app \
-    --host 0.0.0.0 \
-    --port 8000 \
-    --reload \
-    --access-log > "$ENDPOINT_LOG" 2>&1 &
+nohup uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload > "$LOGFILE" 2>&1 &
 echo "Uvicorn started in background. Logs: $LOGFILE"
+
