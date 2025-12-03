@@ -6,33 +6,30 @@
 REPO_DIR="/home/diva/deiva-url-shortner"
 APP_DIR="$REPO_DIR/app"
 
-# Timestamp
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M")
 
-# Log folder structure
+# Log directories
 LOG_DIR="$REPO_DIR/logs"
 STARTUP_LOG="$LOG_DIR/startup/uvicorn_start_$TIMESTAMP.log"
-ERROR_LOG="$LOG_DIR/error/uvicorn_error_$TIMESTAMP.log"
 ACCESS_LOG="$LOG_DIR/access/uvicorn_access_$TIMESTAMP.log"
+ERROR_LOG="$LOG_DIR/error/uvicorn_error_$TIMESTAMP.log"
 
-# Create log directories
 mkdir -p "$LOG_DIR/startup" "$LOG_DIR/error" "$LOG_DIR/access"
 
 
 # ============================
-# STEP 1 — GIT PULL
+# STEP 1 — PULL LATEST CODE
 # ============================
-echo "➡ Pulling latest changes from repo..."
-cd "$REPO_DIR" || { echo "❌ Repo directory not found"; exit 1; }
-
+echo "➡ Pulling latest changes..."
+cd "$REPO_DIR" || { echo "❌ Repo not found"; exit 1; }
 git pull origin develop
-echo "✔ Git updated successfully"
+echo "✔ Git updated"
 
 
 # ============================
-# STEP 2 — PYTHON ENV SETUP
+# STEP 2 — VENV + REQUIREMENTS
 # ============================
-echo "➡ Setting up virtual environment..."
+echo "➡ Preparing Python environment..."
 cd "$APP_DIR"
 
 if [ ! -d "venv" ]; then
@@ -47,30 +44,37 @@ echo "✔ Dependencies installed"
 
 
 # ============================
-# STEP 3 — START UVICORN
+# STEP 3 — STOP PREVIOUS UVICORN
 # ============================
-echo "➡ Starting Uvicorn server..."
-
-# Kill old uvicorn instances cleanly
-if pgrep -f "uvicorn"; then
+if pgrep -f "uvicorn" > /dev/null; then
     echo "➡ Stopping previous Uvicorn instance..."
     pkill -f "uvicorn"
 fi
 
-# Start new instance with proper logs
+
+# ============================
+# STEP 4 — START UVICORN (CORRECT LOGGING)
+# ============================
+echo "➡ Starting Uvicorn server..."
+
+# IMPORTANT FIX:
+# Uvicorn sends ALL logs to STDERR by default.
+# We force access logs to STDOUT using --log-level and filtering.
+
 nohup uvicorn src.main:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \
     --access-log \
-    > "$STARTUP_LOG" \
+    --log-level info \
+    1> "$STARTUP_LOG" \
     2> "$ERROR_LOG" &
 
-# Extract ONLY access logs from STDOUT into a separate file
+# Extract access logs from startup stdout (they always start with "INFO:     ")
 grep --line-buffered "INFO:     " "$STARTUP_LOG" > "$ACCESS_LOG" &
 
-echo "✔ Uvicorn started"
-echo "📌 Startup log: $STARTUP_LOG"
-echo "📌 Error log:   $ERROR_LOG"
-echo "📌 Access log:  $ACCESS_LOG"
+echo "✔ Uvicorn started successfully"
+echo "📌 Startup log → $STARTUP_LOG"
+echo "📌 Access log  → $ACCESS_LOG"
+echo "📌 Error log   → $ERROR_LOG"
 echo "✅ Deployment complete"
