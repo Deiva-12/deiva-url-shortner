@@ -8,6 +8,7 @@ cd "$REPO_DIR" || { echo "Repo directory not found"; exit 1; }
 
 echo "stopping the server"
 pkill -f uvicorn 
+echo "Server stopped"
 
 # stop_server_if_running() {
 #     UVICORN_PID=$(pgrep -f "uvicorn src.main:app")
