@@ -44,8 +44,7 @@ nohup uvicorn src.main:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \
-    --access-log \
-    > "$SERVER_LOG" \  
+    > "$SERVER_LOG" \
     2> "$APP_LOG" &
 
 
