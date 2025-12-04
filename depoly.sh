@@ -45,7 +45,7 @@ nohup uvicorn src.main:app \
     --port 8000 \
     --reload \
     > "$SERVER_LOG" \
-    2> "$APP_LOG" &
+    2>> "$APP_LOG" &
 
 echo "Uvicorn started."
 echo "Server startup logs → $SERVER_LOG"
