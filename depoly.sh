@@ -6,6 +6,18 @@ REPO_DIR="/home/diva/deiva-url-shortner"
 # Move into the repo directory
 cd "$REPO_DIR" || { echo "Repo directory not found"; exit 1; }
 
+stop_server_if_running() {
+    UVICORN_PID=$(pgrep -f "uvicorn src.main:app")
+    if [ -n "$UVICORN_PID" ]; then
+        echo "Uvicorn server is running with PID: $UVICORN_PID"
+        echo "Stopping the server..."
+        kill -9 $UVICORN_PID
+        echo "Server stopped."
+    else
+        echo "No running Uvicorn server found."
+    fi
+}
+
 # Fetch and pull latest changes
 echo "Pulling latest changes..."
 git pull origin develop   # change 'main' to 'master' or another branch if needed
